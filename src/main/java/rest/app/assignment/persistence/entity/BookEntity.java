@@ -8,35 +8,34 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity(name = "book")
-public class BookEntity implements Serializable{
-
+public class BookEntity implements Serializable {
 
 	private static final long serialVersionUID = -7177397966710228721L;
 
 	@Id
 	@GeneratedValue
 	private long id;
-	
+
 	@Column(nullable = false)
 	private String bookId;
 
 	@Column(nullable = false, length = 50)
-	private String bookname;
-	
+	private String bookName;
+
 	@Column(nullable = false, length = 50)
 	private String publisherName;
-	
+
 	@Column(nullable = false, length = 50)
 	private String isbn;
-	
+
 	@Column(nullable = false, length = 50)
 	private String description;
-	
-	@Column(nullable = false, length = 50)
-	private String bookAvailable;
-	
-	@Column(nullable = false, length = 50)
-	private String bookActive;
+
+	@Column(nullable = false)
+	private boolean isAvailable;
+
+	@Column(nullable = false)
+	private boolean isActive;
 
 	public long getId() {
 		return id;
@@ -54,12 +53,12 @@ public class BookEntity implements Serializable{
 		this.bookId = bookId;
 	}
 
-	public String getBookname() {
-		return bookname;
+	public String getBookName() {
+		return bookName;
 	}
 
-	public void setBookname(String bookname) {
-		this.bookname = bookname;
+	public void setBookName(String bookName) {
+		this.bookName = bookName;
 	}
 
 	public String getPublisherName() {
@@ -86,20 +85,20 @@ public class BookEntity implements Serializable{
 		this.description = description;
 	}
 
-	public String getBookAvailable() {
-		return bookAvailable;
+	public boolean isAvailable() {
+		return isAvailable;
 	}
 
-	public void setBookAvailable(String bookAvailable) {
-		this.bookAvailable = bookAvailable;
+	public void setAvailable(boolean isAvailable) {
+		this.isAvailable = isAvailable;
 	}
 
-	public String getBookActive() {
-		return bookActive;
+	public boolean isActive() {
+		return isActive;
 	}
 
-	public void setBookActive(String bookActive) {
-		this.bookActive = bookActive;
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
 	}
-	
+
 }

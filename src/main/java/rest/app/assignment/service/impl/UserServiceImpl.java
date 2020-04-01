@@ -34,30 +34,30 @@ public class UserServiceImpl implements UserService {
 	BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	@Override
-	public UserDto createUser(UserDto user) {
+	public UserDto createUser(UserDto userDto) {
 
-		UserEntity storedUserDetails = userRepository.findByEmail(user.getEmail());
+		UserEntity storedUserDetails = userRepository.findByEmail(userDto.getEmail());
 
 		if (storedUserDetails != null)
 			throw new RuntimeException("Record Already exists");
 
-		for (int i = 0; i < user.getAddresses().size(); i++) {
-			AddressDto address = user.getAddresses().get(i);
+		for (int i = 0; i < userDto.getAddresses().size(); i++) {
+			AddressDto address = userDto.getAddresses().get(i);
 
 			address.setAddressId(utils.generateAddressId(20));
-			address.setUserDetails(user);
+			address.setUserDetails(userDto);
 
-			user.getAddresses().set(i, address);
+			userDto.getAddresses().set(i, address);
 		}
 
 		ModelMapper modelMapper = new ModelMapper();
-		UserEntity userEntity = modelMapper.map(user, UserEntity.class);
+		UserEntity userEntity = modelMapper.map(userDto, UserEntity.class);
 
         String publicUserId = utils.generateUserId(5);
         
 		userEntity.setUserId(publicUserId);
 
-		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
 
 		UserEntity storedUserDetaills = userRepository.save(userEntity);
 

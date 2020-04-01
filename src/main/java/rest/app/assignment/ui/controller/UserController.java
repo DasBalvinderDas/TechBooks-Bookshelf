@@ -73,7 +73,7 @@ public class UserController {
 		userService.deleteUser(id);
 		
 		OperationStatusModel operationStatusModel = new OperationStatusModel();
-		operationStatusModel.setOperationName("DELETE");
+		operationStatusModel.setOperationName("DELETE User Record");
 		operationStatusModel.setOperationResult("SUCCESS");
 		return operationStatusModel;
 	}

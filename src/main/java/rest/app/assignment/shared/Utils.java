@@ -18,6 +18,10 @@ public class Utils {
     public String generateAddressId(int length) {
         return generateRandomString(length);
     }
+    
+    public String generateBookId(int length) {
+		return generateRandomString(length);
+	}
 
 	private String generateRandomString(int length) {
         StringBuilder returnValue = new StringBuilder(length);
@@ -28,5 +32,7 @@ public class Utils {
 
         return new String(returnValue);
     }
+
+	
 	
 }

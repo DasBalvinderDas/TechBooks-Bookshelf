@@ -1,13 +1,10 @@
 package rest.app.assignment.ui.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RestController;
 
-import rest.app.assignment.service.UserService;
-
+@RestController
 public class BookKeepingController {
 
-	@Autowired
-	UserService userService;
 
 	public void getDetailsOfAllBorrowers() {
 		  
