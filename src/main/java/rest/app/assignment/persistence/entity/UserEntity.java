@@ -10,8 +10,10 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
-@Entity(name = "users")
+@Entity
+@Table(name = "users")
 public class UserEntity implements Serializable {
 
 	private static final long serialVersionUID = 4156270113529550913L;
@@ -34,9 +36,6 @@ public class UserEntity implements Serializable {
 
 	@Column(nullable = false)
 	private String encryptedPassword;
-
-	@Column(nullable = false)
-	private String userName;
 
 	@Column(nullable = false)
 	private boolean isActive = true;
@@ -93,14 +92,6 @@ public class UserEntity implements Serializable {
 
 	public void setEncryptedPassword(String encryptedPassword) {
 		this.encryptedPassword = encryptedPassword;
-	}
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
 	}
 
 	public boolean isActive() {

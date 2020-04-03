@@ -14,7 +14,6 @@ public class UserDto implements Serializable {
 	private String email;
 	private String password;
 	private String encryptedPassword;
-	private String userName;
 	private boolean isActive = true;
 	private boolean isLender = false;
 	private List<AddressDto> addresses;
@@ -73,14 +72,6 @@ public class UserDto implements Serializable {
 
 	public void setEncryptedPassword(String encryptedPassword) {
 		this.encryptedPassword = encryptedPassword;
-	}
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
 	}
 
 	public boolean isActive() {

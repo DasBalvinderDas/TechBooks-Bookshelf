@@ -1,7 +1,6 @@
 package rest.app.assignment.service.impl;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
@@ -12,14 +11,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import rest.app.assignment.SpringApplicationContext;
+import rest.app.assignment.exceptions.UserServiceException;
 import rest.app.assignment.persistence.entity.UserEntity;
 import rest.app.assignment.persistence.repositories.UserRepository;
-import rest.app.assignment.security.AppProperties;
 import rest.app.assignment.service.UserService;
 import rest.app.assignment.shared.Utils;
 import rest.app.assignment.shared.dto.AddressDto;
 import rest.app.assignment.shared.dto.UserDto;
+import rest.app.assignment.ui.model.response.ErrorMessage;
+import rest.app.assignment.ui.model.response.ErrorMessages;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -58,8 +58,13 @@ public class UserServiceImpl implements UserService {
 		userEntity.setUserId(publicUserId);
 
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
-
-		UserEntity storedUserDetaills = userRepository.save(userEntity);
+		UserEntity storedUserDetaills = null;
+		userEntity = null;
+		try {
+			storedUserDetaills = userRepository.save(userEntity);
+		}catch(Exception ex) {
+			throw new UserServiceException(ErrorMessages.COULD_NOT_CREATE_RECORD.getErrorMessage());
+		}
 
 		UserDto returnValue = modelMapper.map(storedUserDetaills, UserDto.class);
 

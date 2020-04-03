@@ -7,8 +7,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
-@Entity(name = "lendingrecords")
+@Entity
+@Table(name = "lendingrecords")
 public class BookKeepingRecordEntity implements Serializable{
 
 	

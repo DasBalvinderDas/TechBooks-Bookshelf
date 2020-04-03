@@ -1,9 +1,15 @@
 package rest.app.assignment.persistence.repositories;
 
+import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 import rest.app.assignment.persistence.entity.AddressEntity;
+import rest.app.assignment.persistence.entity.UserEntity;
 
-public interface AddressRepository extends CrudRepository<AddressEntity, Long>{
-
+@Repository
+public interface AddressRepository extends CrudRepository<AddressEntity, Long> {
+	List<AddressEntity> findAllByUserDetails(UserEntity userEntity);
+	AddressEntity findByAddressId(String addressId);
 }

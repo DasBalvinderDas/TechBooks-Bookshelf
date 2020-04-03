@@ -1,5 +1,5 @@
 package rest.app.assignment.shared.dto;
 
-public class BoookLendingDto {
+public class BookLendingDto {
 
 }
