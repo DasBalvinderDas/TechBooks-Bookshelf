@@ -1,6 +1,7 @@
 package rest.app.assignment.persistence.entity;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -8,10 +9,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 @Entity
 @Table(name = "users")
 public class UserEntity implements Serializable {
@@ -19,7 +23,7 @@ public class UserEntity implements Serializable {
 	private static final long serialVersionUID = 4156270113529550913L;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
 	@Column(nullable = false)
@@ -40,11 +44,14 @@ public class UserEntity implements Serializable {
 	@Column(nullable = false)
 	private boolean isActive = true;
 
-	@Column(nullable = false)
-	private boolean isLender = false;
-
-	@OneToMany(fetch = FetchType.EAGER ,mappedBy = "userDetails", cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.LAZY ,mappedBy = "userDetails", cascade = CascadeType.ALL)
 	private List<AddressEntity> addresses;
+	
+	@ManyToMany(cascade= { CascadeType.PERSIST }, fetch = FetchType.EAGER )
+	@JoinTable(name="users_roles", 
+			joinColumns=@JoinColumn(name="users_id",referencedColumnName="id"), 
+			inverseJoinColumns=@JoinColumn(name="roles_id",referencedColumnName="id"))
+	private Collection<RoleEntity> roles;
 
 	public long getId() {
 		return id;
@@ -102,14 +109,6 @@ public class UserEntity implements Serializable {
 		this.isActive = isActive;
 	}
 
-	public boolean isLender() {
-		return isLender;
-	}
-
-	public void setLender(boolean isLender) {
-		this.isLender = isLender;
-	}
-
 	public List<AddressEntity> getAddresses() {
 		return addresses;
 	}
@@ -117,5 +116,15 @@ public class UserEntity implements Serializable {
 	public void setAddresses(List<AddressEntity> addresses) {
 		this.addresses = addresses;
 	}
+
+	public Collection<RoleEntity> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Collection<RoleEntity> roles) {
+		this.roles = roles;
+	}
+
+	
 
 }

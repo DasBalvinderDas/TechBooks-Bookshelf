@@ -1,6 +1,7 @@
 package rest.app.assignment.shared.dto;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 public class UserDto implements Serializable {
@@ -17,6 +18,7 @@ public class UserDto implements Serializable {
 	private boolean isActive = true;
 	private boolean isLender = false;
 	private List<AddressDto> addresses;
+	private Collection<String> roles;
 
 	public String getId() {
 		return id;
@@ -96,6 +98,14 @@ public class UserDto implements Serializable {
 
 	public void setAddresses(List<AddressDto> addresses) {
 		this.addresses = addresses;
+	}
+
+	public Collection<String> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Collection<String> roles) {
+		this.roles = roles;
 	}
 
 }
