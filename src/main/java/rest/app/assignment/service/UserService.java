@@ -2,7 +2,6 @@ package rest.app.assignment.service;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import rest.app.assignment.exceptions.UserServiceException;
 import rest.app.assignment.shared.dto.UserDto;
 
 public interface UserService extends UserDetailsService{

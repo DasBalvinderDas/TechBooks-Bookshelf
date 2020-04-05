@@ -18,10 +18,12 @@ public class UserPrincipal implements UserDetails {
 	
 	private UserEntity userEntity;
 	private String userId;
+	private String email;
 
 	public UserPrincipal(UserEntity userEntity) {
 		this.userEntity = userEntity;
 		this.userId = userEntity.getUserId();
+		this.email = userEntity.getEmail();
 	}
 
 	@Override
@@ -83,6 +85,14 @@ public class UserPrincipal implements UserDetails {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 }

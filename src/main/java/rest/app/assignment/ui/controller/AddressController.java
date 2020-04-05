@@ -47,10 +47,9 @@ public class AddressController {
 		return returnvalue;
 	}
 	
-	
 	@PutMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
-	public AddressRest upddateAdddress(@PathVariable String userId,@PathVariable String addressId) {
+	public AddressRest updateAdddress(@PathVariable String userId,@PathVariable String addressId) {
 		AddressRest returnvalue = new AddressRest();
 		AddressDto addressDto = addressService.getAddress(addressId);
 

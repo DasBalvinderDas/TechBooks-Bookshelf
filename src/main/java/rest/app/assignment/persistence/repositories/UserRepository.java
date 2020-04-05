@@ -13,10 +13,10 @@ public interface UserRepository extends CrudRepository<UserEntity, Long> {
 
 	UserEntity findByUserId(String userId);
 	
-	@Query(value="select * from users ",nativeQuery=true)
+	@Query(value="SELECT * FROM USERS U, ROLES R , USERS_ROLES UR WHERE U.ID = UR.USERS_ID AND R.ID = UR.ROLES_ID AND R.NAME  = 'ROLE_LENDER'; ",nativeQuery=true)
 	UserEntity findAllLenderRoleUsers();
 
-	@Query(value="select * from users ",nativeQuery=true)
+	@Query(value="SELECT * FROM USERS U, ROLES R , USERS_ROLES UR WHERE U.ID = UR.USERS_ID AND R.ID = UR.ROLES_ID AND R.NAME  = 'ROLE_BORROWER'; ",nativeQuery=true)
 	UserEntity findAllBorrowerRoleUsers();
 	
 }

@@ -1,9 +1,13 @@
 package rest.app.assignment.service.impl;
 
+import java.util.Date;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import rest.app.assignment.exceptions.BookServiceException;
 import rest.app.assignment.persistence.entity.BookEntity;
 import rest.app.assignment.persistence.entity.UserEntity;
 import rest.app.assignment.persistence.repositories.BookRepository;
@@ -11,12 +15,15 @@ import rest.app.assignment.service.BookService;
 import rest.app.assignment.shared.Utils;
 import rest.app.assignment.shared.dto.BookDto;
 import rest.app.assignment.shared.dto.UserDto;
+import rest.app.assignment.ui.model.response.OperationStatusModel;
 
 @Service
 public class BookServiceImpl implements BookService{
 
 	@Autowired
 	BookRepository bookRepository;
+	
+
 	
 	@Autowired
 	Utils utils;
@@ -41,6 +48,35 @@ public class BookServiceImpl implements BookService{
 
 		return returnValue;
 		
+	}
+
+	@Override
+	public BookDto getBookById(String bookId) {
+		BookEntity bookEntity =  bookRepository.findByBookId(bookId);
+		ModelMapper modelMapper = new ModelMapper();
+		BookDto returnValue =  modelMapper.map(bookEntity, BookDto.class);
+		
+		return returnValue;
+	}
+	
+	@Override
+	public OperationStatusModel assignBook(BookDto bookDto) {
+		
+		
+		ModelMapper modelMapper = new ModelMapper();
+		BookEntity bookEntity = bookRepository.findByBookId(bookDto.getBookId());
+		if (null == bookEntity)
+			throw new BookServiceException(String.valueOf(bookDto.getBookId()));
+		
+		bookEntity = modelMapper.map(bookDto, BookEntity.class);
+
+		bookRepository.save(bookEntity);
+		
+		OperationStatusModel operationStatusModel = new OperationStatusModel();
+		operationStatusModel.setOperationName("Assign Boook");
+		operationStatusModel.setOperationResult("SUCCESS");
+
+		return operationStatusModel;
 	}
 
 }

@@ -1,5 +1,7 @@
 package rest.app.assignment.shared.dto;
 
+import java.util.Date;
+
 public class BookDto {
 
 	private String bookId;
@@ -9,6 +11,9 @@ public class BookDto {
 	private String description;
 	private boolean isAvailable = true;
 	private boolean isActive = true;
+	private String borrower;
+	private String lender;
+	private Date lastUpdated;
 
 	public String getBookId() {
 		return bookId;
@@ -64,6 +69,30 @@ public class BookDto {
 
 	public void setActive(boolean isActive) {
 		this.isActive = isActive;
+	}
+
+	public String getBorrower() {
+		return borrower;
+	}
+
+	public void setBorrower(String borrower) {
+		this.borrower = borrower;
+	}
+
+	public String getLender() {
+		return lender;
+	}
+
+	public void setLender(String lender) {
+		this.lender = lender;
+	}
+
+	public Date getLastUpdated() {
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(Date lastUpdated) {
+		this.lastUpdated = lastUpdated;
 	}
 
 }

@@ -1,6 +1,7 @@
 package rest.app.assignment.persistence.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,6 +40,15 @@ public class BookEntity implements Serializable {
 
 	@Column(nullable = false)
 	private boolean isActive;
+
+	@Column(nullable = true)
+	private String borrower;
+
+	@Column(nullable = false)
+	private String lender;
+
+	@Column(nullable = false)
+	private Date lastUpdated;
 
 	public long getId() {
 		return id;
@@ -102,6 +112,30 @@ public class BookEntity implements Serializable {
 
 	public void setActive(boolean isActive) {
 		this.isActive = isActive;
+	}
+
+	public String getBorrower() {
+		return borrower;
+	}
+
+	public void setBorrower(String borrower) {
+		this.borrower = borrower;
+	}
+
+	public String getLender() {
+		return lender;
+	}
+
+	public void setLender(String lender) {
+		this.lender = lender;
+	}
+
+	public Date getLastUpdated() {
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(Date lastUpdated) {
+		this.lastUpdated = lastUpdated;
 	}
 
 }
