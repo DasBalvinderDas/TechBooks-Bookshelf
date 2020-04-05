@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import rest.app.assignment.service.AddressService;
 import rest.app.assignment.shared.dto.AddressDto;
@@ -37,6 +38,19 @@ public class AddressController {
 	@GetMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
 	public AddressRest getAdddresses(@PathVariable String userId,@PathVariable String addressId) {
+		AddressRest returnvalue = new AddressRest();
+		AddressDto addressDto = addressService.getAddress(addressId);
+
+		ModelMapper modelMapper = new ModelMapper();
+		returnvalue = modelMapper.map(addressDto, AddressRest.class);
+		
+		return returnvalue;
+	}
+	
+	
+	@PutMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE,
+			MediaType.APPLICATION_JSON_VALUE })
+	public AddressRest upddateAdddress(@PathVariable String userId,@PathVariable String addressId) {
 		AddressRest returnvalue = new AddressRest();
 		AddressDto addressDto = addressService.getAddress(addressId);
 

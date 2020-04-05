@@ -2,10 +2,12 @@ package rest.app.assignment.ui.controller;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,6 +27,7 @@ import rest.app.assignment.service.UserService;
 import rest.app.assignment.shared.Roles;
 import rest.app.assignment.shared.dto.UserDto;
 import rest.app.assignment.ui.model.request.UserDetailsRequestModel;
+import rest.app.assignment.ui.model.request.UserDetailsUpdateModel;
 import rest.app.assignment.ui.model.response.OperationStatusModel;
 import rest.app.assignment.ui.model.response.UserRest;
 
@@ -58,107 +61,137 @@ public class UserController {
 		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
 	}
 	
-	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+	@PutMapping(path = "/{id}",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('SUPER')")
-	public ResponseEntity<UserRest> makeAdmin(@Valid @RequestBody UserDetailsRequestModel userDetails) {
+	public ResponseEntity<UserRest> makeAdmin(@PathVariable String id) {
 
 		UserDto userDto = new UserDto();
 		ModelMapper modelMapper = new ModelMapper();
-		userDto = modelMapper.map(userDetails, UserDto.class);
+		userDto = userService.getUserByUserId(id);
 		
 		//setting role in the user
-		userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_BORROWER.name())));
+		userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_ADMIN.name())));
 		
-		UserDto createdUser = userService.createUser(userDto);
+		UserDto updatedUser = userService.updateUser(id, userDto);
 
 		UserRest userRest = new UserRest();
-		userRest = modelMapper.map(createdUser, UserRest.class);
+		userRest = modelMapper.map(updatedUser, UserRest.class);
 
 		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
 	}
 	
-	@DeleteMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+	@DeleteMapping(path = "/delete/admin/{id}", consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('SUPER')")
-	public ResponseEntity<UserRest> deleteAdmin(@Valid @RequestBody UserDetailsRequestModel userDetails) {
+	public ResponseEntity<OperationStatusModel> deleteAdmin(@PathVariable String id) {
 
+		OperationStatusModel operationStatusModel = new OperationStatusModel();
+		boolean isUserAdmin = false;
 		UserDto userDto = new UserDto();
-		ModelMapper modelMapper = new ModelMapper();
-		userDto = modelMapper.map(userDetails, UserDto.class);
 		
-		//setting role in the user
-		userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_BORROWER.name())));
+		userDto = userService.getUserByUserId(id);
 		
-		UserDto createdUser = userService.createUser(userDto);
+		Iterator<String> itr = userDto.getRoles().iterator();
+		String role;
+		while(itr.hasNext()) {
+			role = itr.next();
+			if(role.equalsIgnoreCase("ROLE_ADMIN")) {
+				isUserAdmin = true;
+				break;
+			}
+		}
+		if(isUserAdmin) {
+			userService.deleteUser(id);
 
-		UserRest userRest = new UserRest();
-		userRest = modelMapper.map(createdUser, UserRest.class);
-
-		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
+			operationStatusModel = new OperationStatusModel();
+			operationStatusModel.setOperationName("DELETE User Record");
+			operationStatusModel.setOperationResult("SUCCESS");
+			
+		}
+		return new ResponseEntity<OperationStatusModel>(operationStatusModel,HttpStatus.OK);
+		
 	}
 	
-	@PutMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+	@PutMapping(path = "/lender/{id}",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<UserRest> makeLender(@Valid @RequestBody UserDetailsRequestModel userDetails) {
+	public ResponseEntity<UserRest> makeLender(@PathVariable String id) {
 
 		UserDto userDto = new UserDto();
 		ModelMapper modelMapper = new ModelMapper();
-		userDto = modelMapper.map(userDetails, UserDto.class);
 		
+		userDto = userService.getUserByUserId(id);
 		//setting role in the user
-		userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_BORROWER.name())));
+		userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_LENDER.name())));
 		
-		UserDto createdUser = userService.createUser(userDto);
-
-		UserRest userRest = new UserRest();
-		userRest = modelMapper.map(createdUser, UserRest.class);
-
-		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
-	}
-	
-	
-	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
-	public UserRest getUser(@PathVariable String id) {
-		UserRest userRest = new UserRest();
-		UserDto userDto = userService.getUserByUserId(id);
-		ModelMapper modelMapper = new ModelMapper();
-		userRest = modelMapper.map(userDto, UserRest.class);
-		return userRest;
-	}
-
-	
-	@PutMapping(path = "/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
-					MediaType.APPLICATION_JSON_VALUE })
-	@PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
-	public UserRest updateUser(@PathVariable String id, @RequestBody UserDetailsRequestModel userDetails) {
-		UserDto userDto = new UserDto();
-		ModelMapper modelMapper = new ModelMapper();
-		userDto = modelMapper.map(userDetails, UserDto.class);
-
 		UserDto createdUser = userService.updateUser(id, userDto);
 
 		UserRest userRest = new UserRest();
 		userRest = modelMapper.map(createdUser, UserRest.class);
 
-		return userRest;
+		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
 	}
 	
-	@DeleteMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
-	public OperationStatusModel deleteUser(@PathVariable String id) {
+	public ResponseEntity<UserRest> getUser(@PathVariable String id) {
+		UserRest userRest = new UserRest();
+		UserDto userDto = userService.getUserByUserId(id);
+		ModelMapper modelMapper = new ModelMapper();
+		userRest = modelMapper.map(userDto, UserRest.class);
+		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
+	}
+	
+	@PutMapping(path = "/update/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
+			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
+					MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
+	public ResponseEntity<UserRest> updateUser(@Valid @RequestBody UserDetailsUpdateModel userDetails , @PathVariable String id) {
+		UserDto userDto = new UserDto();
+		ModelMapper modelMapper = new ModelMapper();
+		
+		userDto = userService.getUserByUserId(id);
+		BeanUtils.copyProperties(userDetails, userDto);
+		
+		UserDto updatedUser = userService.updateUser(id, userDto);
 
+		UserRest userRest = new UserRest();
+		userRest = modelMapper.map(updatedUser, UserRest.class);
+
+		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
+	}
+	
+	@DeleteMapping(path = "/delete/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<OperationStatusModel> deleteUser(@PathVariable String id) {
+
+		//we cant delete a llendder as long as all books providded by him are not submittedd back to the libarary
 		userService.deleteUser(id);
-
 		OperationStatusModel operationStatusModel = new OperationStatusModel();
 		operationStatusModel.setOperationName("DELETE User Record");
 		operationStatusModel.setOperationResult("SUCCESS");
-		return operationStatusModel;
+		return new ResponseEntity<OperationStatusModel>(operationStatusModel,HttpStatus.OK);
 	}
-
 	
+	@GetMapping(path = "/lenders", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
+	public ResponseEntity<UserRest> showAllLenders() {
+		UserRest userRest = new UserRest();
+		UserDto userDto = userService.getAllLenderRoleUsers();
+		ModelMapper modelMapper = new ModelMapper();
+		userRest = modelMapper.map(userDto, UserRest.class);
+		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
+	}
+	
+	@GetMapping(path = "/borrowers", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN') or hasRole('BORROWER')")
+	public ResponseEntity<UserRest> showAllBorrowers() {
+		UserRest userRest = new UserRest();
+		UserDto userDto = userService.getAllBorrowerRoleUsers();
+		ModelMapper modelMapper = new ModelMapper();
+		userRest = modelMapper.map(userDto, UserRest.class);
+		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
+	}
 	
 }

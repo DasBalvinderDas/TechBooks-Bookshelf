@@ -152,6 +152,24 @@ public class UserServiceImpl implements UserService {
 		
 	}
 
+	@Override
+	public UserDto getAllLenderRoleUsers() {
+		ModelMapper modelMapper = new ModelMapper();
+		UserDto returnValue = new UserDto();
+		UserEntity userEntity = userRepository.findAllLenderRoleUsers();
+		returnValue = modelMapper.map(userEntity, UserDto.class);
+		return returnValue;
+	}
+
+	@Override
+	public UserDto getAllBorrowerRoleUsers() {
+		ModelMapper modelMapper = new ModelMapper();
+		UserDto returnValue = new UserDto();
+		UserEntity userEntity = userRepository.findAllBorrowerRoleUsers();
+		returnValue = modelMapper.map(userEntity, UserDto.class);
+		return returnValue;
+	}
+
 	
 
 	

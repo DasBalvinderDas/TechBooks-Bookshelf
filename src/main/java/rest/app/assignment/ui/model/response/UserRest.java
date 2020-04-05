@@ -1,5 +1,6 @@
 package rest.app.assignment.ui.model.response;
 
+import java.util.Collection;
 import java.util.List;
 
 public class UserRest {
@@ -9,6 +10,7 @@ public class UserRest {
 	private String lastName;
 	private String email;
 	private List<AddressRest> addresses;
+	private Collection<String> roles;
 
 	public String getUserId() {
 		return userId;
@@ -48,6 +50,14 @@ public class UserRest {
 
 	public void setAddresses(List<AddressRest> addresses) {
 		this.addresses = addresses;
+	}
+
+	public Collection<String> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Collection<String> roles) {
+		this.roles = roles;
 	}
 
 }
