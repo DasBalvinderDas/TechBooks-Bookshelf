@@ -1,21 +1,15 @@
 package rest.app.assignment.ui.controller;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
 import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,10 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 import rest.app.assignment.service.AddressService;
 import rest.app.assignment.service.UserService;
 import rest.app.assignment.shared.Roles;
-import rest.app.assignment.shared.dto.AddressDto;
 import rest.app.assignment.shared.dto.UserDto;
 import rest.app.assignment.ui.model.request.UserDetailsRequestModel;
-import rest.app.assignment.ui.model.response.AddressRest;
 import rest.app.assignment.ui.model.response.OperationStatusModel;
 import rest.app.assignment.ui.model.response.UserRest;
 
@@ -48,6 +40,7 @@ public class UserController {
 	
 	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN') or hasRole('SUPER')")
 	public ResponseEntity<UserRest> createUser(@Valid @RequestBody UserDetailsRequestModel userDetails) {
 
 		UserDto userDto = new UserDto();
@@ -64,9 +57,70 @@ public class UserController {
 
 		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
 	}
+	
+	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('SUPER')")
+	public ResponseEntity<UserRest> makeAdmin(@Valid @RequestBody UserDetailsRequestModel userDetails) {
 
-	//@PostAuthorize("hasRole('ADMIN') or returnedObject.userId == principal.userId")
+		UserDto userDto = new UserDto();
+		ModelMapper modelMapper = new ModelMapper();
+		userDto = modelMapper.map(userDetails, UserDto.class);
+		
+		//setting role in the user
+		userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_BORROWER.name())));
+		
+		UserDto createdUser = userService.createUser(userDto);
+
+		UserRest userRest = new UserRest();
+		userRest = modelMapper.map(createdUser, UserRest.class);
+
+		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
+	}
+	
+	@DeleteMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('SUPER')")
+	public ResponseEntity<UserRest> deleteAdmin(@Valid @RequestBody UserDetailsRequestModel userDetails) {
+
+		UserDto userDto = new UserDto();
+		ModelMapper modelMapper = new ModelMapper();
+		userDto = modelMapper.map(userDetails, UserDto.class);
+		
+		//setting role in the user
+		userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_BORROWER.name())));
+		
+		UserDto createdUser = userService.createUser(userDto);
+
+		UserRest userRest = new UserRest();
+		userRest = modelMapper.map(createdUser, UserRest.class);
+
+		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
+	}
+	
+	@PutMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<UserRest> makeLender(@Valid @RequestBody UserDetailsRequestModel userDetails) {
+
+		UserDto userDto = new UserDto();
+		ModelMapper modelMapper = new ModelMapper();
+		userDto = modelMapper.map(userDetails, UserDto.class);
+		
+		//setting role in the user
+		userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_BORROWER.name())));
+		
+		UserDto createdUser = userService.createUser(userDto);
+
+		UserRest userRest = new UserRest();
+		userRest = modelMapper.map(createdUser, UserRest.class);
+
+		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
+	}
+	
+	
 	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	public UserRest getUser(@PathVariable String id) {
 		UserRest userRest = new UserRest();
 		UserDto userDto = userService.getUserByUserId(id);
@@ -79,6 +133,7 @@ public class UserController {
 	@PutMapping(path = "/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
 					MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
 	public UserRest updateUser(@PathVariable String id, @RequestBody UserDetailsRequestModel userDetails) {
 		UserDto userDto = new UserDto();
 		ModelMapper modelMapper = new ModelMapper();
@@ -91,12 +146,9 @@ public class UserController {
 
 		return userRest;
 	}
-
 	
-	//@PreAuthorize("hasRole('ROLE_ADMIN) or #id == principal.userId ")
-	//@PreAuthorize("hasAuthority('DELETE_AUTHORITY')")
-	//@Secured("ROLLE_ADMIN")
 	@DeleteMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	public OperationStatusModel deleteUser(@PathVariable String id) {
 
 		userService.deleteUser(id);
@@ -107,30 +159,6 @@ public class UserController {
 		return operationStatusModel;
 	}
 
-	@GetMapping(path = "/{id}/addresses", produces = { MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE })
-	public List<AddressRest> getAdddresses(@PathVariable String id) {
-		List<AddressRest> returnvalue = new ArrayList<AddressRest>();
-		List<AddressDto> lstAddressDto = addressService.getAddresses(id);
-
-		if(null!=lstAddressDto && !lstAddressDto.isEmpty()) {
-			Type listType = new TypeToken<List<AddressRest>>() {}.getType();
-			returnvalue = new ModelMapper().map(lstAddressDto, listType);
-		}
-		
-		return returnvalue;
-	}
 	
-	@GetMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE })
-	public AddressRest getAdddresses(@PathVariable String userId,@PathVariable String addressId) {
-		AddressRest returnvalue = new AddressRest();
-		AddressDto addressDto = addressService.getAddress(addressId);
-
-		ModelMapper modelMapper = new ModelMapper();
-		returnvalue = modelMapper.map(addressDto, AddressRest.class);
-		
-		return returnvalue;
-	}
 	
 }

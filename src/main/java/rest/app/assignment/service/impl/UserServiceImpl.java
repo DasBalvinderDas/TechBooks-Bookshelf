@@ -18,6 +18,7 @@ import rest.app.assignment.persistence.entity.RoleEntity;
 import rest.app.assignment.persistence.entity.UserEntity;
 import rest.app.assignment.persistence.repositories.RoleRepository;
 import rest.app.assignment.persistence.repositories.UserRepository;
+import rest.app.assignment.security.UserPrincipal;
 import rest.app.assignment.service.UserService;
 import rest.app.assignment.shared.Utils;
 import rest.app.assignment.shared.dto.AddressDto;
@@ -43,7 +44,7 @@ public class UserServiceImpl implements UserService {
 	public UserDto createUser(UserDto userDto) {
 
 		UserDto returnValue = new UserDto();
-		try {
+		
 			UserEntity storedUserDetails = userRepository.findByEmail(userDto.getEmail());
 
 			if (storedUserDetails != null)
@@ -78,12 +79,12 @@ public class UserServiceImpl implements UserService {
 			}
 
 			userEntity.setRoles(roleEntities);
-			storedUserDetaills = userRepository.save(userEntity);
-		
-		returnValue = modelMapper.map(storedUserDetaills, UserDto.class);
-		} catch (Exception ex) {
-			throw new UserServiceException(ErrorMessages.COULD_NOT_CREATE_RECORD.getErrorMessage());
-		}
+			try {
+				storedUserDetaills = userRepository.save(userEntity);
+				returnValue = modelMapper.map(storedUserDetaills, UserDto.class);
+			} catch (Exception ex) {
+				throw new UserServiceException(ErrorMessages.COULD_NOT_CREATE_RECORD.getErrorMessage());
+			}
 
 		return returnValue;
 	}
@@ -93,18 +94,20 @@ public class UserServiceImpl implements UserService {
 		UserEntity userEntity = userRepository.findByEmail(email);
 		if (null == userEntity)
 			throw new UsernameNotFoundException(email);
-		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+		
+		return new UserPrincipal(userEntity);
 	}
 
 	@Override
 	public UserDto getUser(String email) {
-		ModelMapper modelMapper = new ModelMapper();
+		
 		UserEntity userEntity = userRepository.findByEmail(email);
 		if (null == userEntity)
 			throw new UsernameNotFoundException(email);
 
-		UserDto returnValue = modelMapper.map(userEntity, UserDto.class);
-
+		UserDto returnValue = new UserDto();
+		BeanUtils.copyProperties(userEntity, returnValue);
+		
 		return returnValue;
 	}
 

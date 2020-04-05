@@ -3,6 +3,7 @@ package rest.app.assignment.ui.controller;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,7 @@ public class BookController {
 
 	@GetMapping(produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	public BookRest getStatusOfBook(int id) {
 		BookRest returnValue = new BookRest();
 		return returnValue;
@@ -33,6 +35,7 @@ public class BookController {
 	
 	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	public BookRest addBook(@RequestBody BookDetailsRequestModel bookDetails) {
 		BookRest returnvalue = new BookRest();
 		BookDto bookDto = new BookDto();
@@ -48,6 +51,7 @@ public class BookController {
 
 	@DeleteMapping(produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN')")
 	public OperationStatusModel removeBook(String id) {
 		
 		OperationStatusModel operationStatusModel = new OperationStatusModel();
@@ -59,6 +63,7 @@ public class BookController {
 	@PutMapping(consumes = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
 					MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasRole('ADMIN')")
 	public BookRest setBookAvailability(String id,boolean available) {
 		BookRest returnValue = new BookRest();
 		return returnValue;
