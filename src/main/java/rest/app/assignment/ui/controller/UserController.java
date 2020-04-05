@@ -2,7 +2,8 @@ package rest.app.assignment.ui.controller;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -53,8 +54,8 @@ public class UserController {
 		ModelMapper modelMapper = new ModelMapper();
 		userDto = modelMapper.map(userDetails, UserDto.class);
 		
-		//setting role in the user 
-		//userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_USER.name())));
+		//setting role in the user
+		userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_BORROWER.name())));
 		
 		UserDto createdUser = userService.createUser(userDto);
 

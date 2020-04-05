@@ -1,4 +1,4 @@
 package rest.app.assignment.shared;
 public enum Roles {
- ROLE_USER, ROLE_ADMIN
+ ROLE_BORROWER, ROLE_LENDER,ROLE_ADMIN,ROLE_SUPER
 }

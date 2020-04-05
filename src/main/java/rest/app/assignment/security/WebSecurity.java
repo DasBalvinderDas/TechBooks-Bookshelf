@@ -50,6 +50,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 	        .addFilter(new AuthorizationFilter(authenticationManager(),userRepository))
 	        .sessionManagement()
 	        .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			
+			//This is done to enable the h2 database console
+			http.headers().frameOptions().disable();
 	}
 	
 	@Override

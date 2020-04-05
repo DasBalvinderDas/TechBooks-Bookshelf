@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import rest.app.assignment.exceptions.UserServiceException;
 import rest.app.assignment.persistence.entity.AuthorityEntity;
 import rest.app.assignment.persistence.entity.RoleEntity;
 import rest.app.assignment.persistence.entity.UserEntity;
@@ -17,6 +18,7 @@ import rest.app.assignment.persistence.repositories.RoleRepository;
 import rest.app.assignment.persistence.repositories.UserRepository;
 import rest.app.assignment.shared.Roles;
 import rest.app.assignment.shared.Utils;
+import rest.app.assignment.ui.model.response.ErrorMessages;
 
 @Component
 public class InitialUsersSetup {
@@ -39,32 +41,60 @@ public class InitialUsersSetup {
 	@EventListener
 	@Transactional
 	public void onApplicationEvent(ApplicationReadyEvent event) {
+			
+			AuthorityEntity updateAuthority = createAuthority("UPDATE");
+			AuthorityEntity createAuthority = createAuthority("CREATE");
+			AuthorityEntity deleteAuthority = createAuthority("DELETE");
+			AuthorityEntity viewAuthority = createAuthority("VIEW");
+			
+			createRole(Roles.ROLE_BORROWER.name(), Arrays.asList(viewAuthority,updateAuthority));
+			createRole(Roles.ROLE_LENDER.name(), Arrays.asList(viewAuthority,updateAuthority));
+			
+			RoleEntity addmin = createRole(Roles.ROLE_ADMIN.name(), Arrays.asList(viewAuthority,updateAuthority,createAuthority,deleteAuthority));
+			
+			RoleEntity superAdmin = createRole(Roles.ROLE_SUPER.name(), Arrays.asList(viewAuthority,updateAuthority,createAuthority,deleteAuthority));
+			
+			if(superAdmin == null) return;
+			
+			UserEntity superAdminUser;
+			superAdminUser = userRepository.findByEmail("super@admin.com");
+			
+			if(null!=superAdminUser) return;
+			
+			createSuperAdminUser(superAdmin);
+			
+			UserEntity adminUser = new UserEntity();
+			adminUser = userRepository.findByEmail("admin@test.com");
+			if(null!=adminUser) return;
+			
+			createAdminUser(addmin);
+			
+		}
+
+	private void createSuperAdminUser(RoleEntity superAdmin) {
+		UserEntity superAdminUser = new UserEntity();
+		superAdminUser.setFirstName("root");
+		superAdminUser.setLastName("root");
+		superAdminUser.setEmail("super@admin.com");
 		
-		AuthorityEntity readAuthority = createAuthority("READ_AUTHORITY");
-		AuthorityEntity writeAuthority = createAuthority("WRITE_AUTHORITY");
-		AuthorityEntity deleteAuthority = createAuthority("DELETE_AUTHORITY");
+		superAdminUser.setUserId(utils.generateUserId(5));
+		superAdminUser.setEncryptedPassword(bCryptPasswordEncoder.encode("1234"));
+		superAdminUser.setRoles(Arrays.asList(superAdmin));
 		
-		createRole(Roles.ROLE_USER.name(), Arrays.asList(readAuthority,writeAuthority));
-		RoleEntity roleAdmin = createRole(Roles.ROLE_ADMIN.name(), Arrays.asList(readAuthority,writeAuthority, deleteAuthority));
-		
-		if(roleAdmin == null) return;
-		
+		userRepository.save(superAdminUser);
+	}
+	
+	private void createAdminUser(RoleEntity admin) {
 		UserEntity adminUser = new UserEntity();
-		adminUser = userRepository.findByEmail("admin@test.com");
-		
-		
-		if(null!=adminUser) return;
-		
 		adminUser.setFirstName("Balvinder");
 		adminUser.setLastName("Das");
 		adminUser.setEmail("admin@test.com");
 		
 		adminUser.setUserId(utils.generateUserId(5));
 		adminUser.setEncryptedPassword(bCryptPasswordEncoder.encode("1234"));
-		adminUser.setRoles(Arrays.asList(roleAdmin));
+		adminUser.setRoles(Arrays.asList(admin));
 		
 		userRepository.save(adminUser);
-		
 	}
 	
 	@Transactional
@@ -82,12 +112,17 @@ public class InitialUsersSetup {
     private RoleEntity createRole(
             String name, Collection<AuthorityEntity> authorities) {
 
-        RoleEntity role = roleRepository.findByName(name);
-        if (role == null) {
-            role = new RoleEntity(name);
-            role.setAuthorities(authorities);
-            roleRepository.save(role);
-        }
+		RoleEntity role = new RoleEntity();
+		try{
+	        role = roleRepository.findByName(name);
+	        if (role == null) {
+	            role = new RoleEntity(name);
+	            role.setAuthorities(authorities);
+	            roleRepository.save(role);
+	        }
+		} catch (Exception ex) {
+			throw new UserServiceException(ErrorMessages.COULD_NOT_CREATE_NEW_ROLE_IN_THE_SYSTEM.getErrorMessage());
+		}
         return role;
     }
 	

@@ -10,7 +10,9 @@ public enum ErrorMessages {
     COULD_NOT_UPDATE_RECORD("Could not update record"),
     COULD_NOT_DELETE_RECORD("Could not delete record"),
     COULD_NOT_CREATE_RECORD("Could not create record"),
-    EMAIL_ADDRESS_NOT_VERIFIED("Email address could not be verified");
+    EMAIL_ADDRESS_NOT_VERIFIED("Email address could not be verified"),
+	COULD_NOT_CREATE_NEW_ROLE_IN_THE_SYSTEM("Could not create new role in the system"),
+	ROOT_USER_PRESENT("Root user already present in the system");
     
     private String errorMessage;
 
