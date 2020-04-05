@@ -1,9 +1,11 @@
 package rest.app.assignment.service.impl;
 
 import java.util.Date;
+import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import rest.app.assignment.service.BookService;
 import rest.app.assignment.shared.Utils;
 import rest.app.assignment.shared.dto.BookDto;
 import rest.app.assignment.shared.dto.UserDto;
+import rest.app.assignment.ui.model.response.BookRest;
 import rest.app.assignment.ui.model.response.OperationStatusModel;
 
 @Service
@@ -77,6 +80,33 @@ public class BookServiceImpl implements BookService{
 		operationStatusModel.setOperationResult("SUCCESS");
 
 		return operationStatusModel;
+	}
+
+	@Override
+	public void deleteBook(String bookId) {
+		BookEntity bookEntity = bookRepository.findByBookId(bookId);
+		if (null == bookEntity)
+			throw new BookServiceException("not able to delete this book " + bookId);
+
+		bookRepository.delete(bookEntity);
+	}
+	
+	@Override
+	public BookRest update(BookDto bookDto) {
+		
+		ModelMapper modelMapper = new ModelMapper();
+		BookEntity bookEntity = modelMapper.map(bookDto, BookEntity.class);
+		
+		bookEntity = bookRepository.save(bookEntity);
+		BookRest returnValue = modelMapper.map(bookEntity, BookRest.class);
+		
+		return returnValue;
+	}
+
+	@Override
+	public List<UserDto> getAllBooks() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

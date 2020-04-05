@@ -7,6 +7,8 @@ public class BookRest {
 	private String publisherName;
 	private String isbn;
 	private String description;
+	private boolean isActive = true;
+	private boolean isAvailable = true;
 
 	public String getBookid() {
 		return bookid;
@@ -46,6 +48,22 @@ public class BookRest {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	public boolean isAvailable() {
+		return isAvailable;
+	}
+
+	public void setAvailable(boolean isAvailable) {
+		this.isAvailable = isAvailable;
 	}
 
 }
