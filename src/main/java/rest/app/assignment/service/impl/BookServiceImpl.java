@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,13 +40,9 @@ public class BookServiceImpl implements BookService{
 		ModelMapper modelMapper = new ModelMapper();
 		BookEntity bookEntity = modelMapper.map(bookDto, BookEntity.class);
 		
-		String publicBookId = utils.generateBookId(5);
-		bookEntity.setBookId(publicBookId);
-		
-		bookDto.setLastUpdated(new Date());
-		
-		String email = utils.getLoginUserEmail();
-		bookDto.setLender(email);
+		bookEntity.setBookId(utils.generateBookId(5));
+		bookEntity.setLastUpdated(new Date());
+		bookEntity.setLender(utils.getLoginUserEmail());
 		
 		bookRepository.save(bookEntity);
 		
@@ -111,7 +108,7 @@ public class BookServiceImpl implements BookService{
 		if (null == bookEntity)
 			throw new BookServiceException(String.valueOf(bookDto.getBookId()));
 		
-		bookEntity = modelMapper.map(bookDto, BookEntity.class);
+		BeanUtils.copyProperties(bookDto, bookEntity);
 
 		bookRepository.save(bookEntity);
 		

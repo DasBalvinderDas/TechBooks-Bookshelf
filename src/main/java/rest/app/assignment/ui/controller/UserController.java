@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import rest.app.assignment.persistence.entity.RoleEntity;
 import rest.app.assignment.service.AddressService;
 import rest.app.assignment.service.UserService;
 import rest.app.assignment.shared.Roles;
@@ -95,8 +96,7 @@ public class UserController {
 
 	@ApiImplicitParams({ @ApiImplicitParam(name = "authorization", value = "Book JWT Token", paramType = "header") })
 	@PreAuthorize("hasRole('SUPER')")
-	@DeleteMapping(path = "/users/admin/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
+	@DeleteMapping(path = "/users/admin/{id}", produces = { MediaType.APPLICATION_XML_VALUE,
 					MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<OperationStatusModel> deleteAdmin(@PathVariable String id) {
 
@@ -105,32 +105,32 @@ public class UserController {
 		UserDto userDto = new UserDto();
 
 		userDto = userService.getUserByUserId(id);
-
-		Iterator<String> itr = userDto.getRoles().iterator();
-		String role;
+		Iterator itr = userDto.getRoles().iterator();
+		
+		RoleEntity role;
 		while (itr.hasNext()) {
-			role = itr.next();
-			if (role.equalsIgnoreCase("ROLE_ADMIN")) {
+			role = (RoleEntity)itr.next();
+			if (role.getName().equalsIgnoreCase("ROLE_ADMIN")) {
 				isUserAdmin = true;
 				break;
 			}
 		}
+		
 		if (isUserAdmin) {
 			userService.deleteUser(id);
 
 			operationStatusModel = new OperationStatusModel();
-			operationStatusModel.setOperationName("DELETE User Record");
+			operationStatusModel.setOperationName("DELETE Admin User Record");
 			operationStatusModel.setOperationResult("SUCCESS");
 
 		}
 		return new ResponseEntity<OperationStatusModel>(operationStatusModel, HttpStatus.OK);
 
 	}
-
+	
 	@ApiImplicitParams({ @ApiImplicitParam(name = "authorization", value = "Book JWT Token", paramType = "header") })
 	@PreAuthorize("hasRole('ADMIN')")
-	@PutMapping(path = "/users/lender/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
+	@PutMapping(path = "/users/lender/{id}", produces = { MediaType.APPLICATION_XML_VALUE,
 					MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserRest> makeLender(@PathVariable String id) {
 
@@ -225,29 +225,5 @@ public class UserController {
 		operationStatusModel.setOperationResult("SUCCESS");
 		return new ResponseEntity<OperationStatusModel>(operationStatusModel, HttpStatus.OK);
 	}
-
-	@ApiImplicitParams({ @ApiImplicitParam(name = "authorization", value = "Book JWT Token", paramType = "header") })
-	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
-	@GetMapping(path = "/users/lenders", produces = { MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<UserRest> showAllLenders() {
-		UserRest userRest = new UserRest();
-		UserDto userDto = userService.getAllLenderRoleUsers();
-		ModelMapper modelMapper = new ModelMapper();
-		userRest = modelMapper.map(userDto, UserRest.class);
-		return new ResponseEntity<UserRest>(userRest, HttpStatus.OK);
-	}
-
-	@ApiImplicitParams({ @ApiImplicitParam(name = "authorization", value = "Book JWT Token", paramType = "header") })
-	@PreAuthorize("hasRole('ADMIN') or hasRole('BORROWER')")
-	@GetMapping(path = "/users/borrowers", produces = { MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<UserRest> showAllBorrowers() {
-		UserRest userRest = new UserRest();
-		UserDto userDto = userService.getAllBorrowerRoleUsers();
-		ModelMapper modelMapper = new ModelMapper();
-		userRest = modelMapper.map(userDto, UserRest.class);
-		return new ResponseEntity<UserRest>(userRest, HttpStatus.OK);
-	}
-
+	
 }

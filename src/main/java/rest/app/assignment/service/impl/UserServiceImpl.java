@@ -1,6 +1,7 @@
 package rest.app.assignment.service.impl;
 
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -8,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,6 +32,7 @@ import rest.app.assignment.shared.Utils;
 import rest.app.assignment.shared.dto.AddressDto;
 import rest.app.assignment.shared.dto.UserDto;
 import rest.app.assignment.ui.model.response.ErrorMessages;
+import rest.app.assignment.ui.model.response.UserRest;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -154,8 +157,18 @@ public class UserServiceImpl implements UserService {
 		if (null == userEntity)
 			throw new UsernameNotFoundException(String.valueOf(userId));
 		
+		Iterator<String> roles = userDto.getRoles().iterator();
+		List<RoleEntity> lstRoleEntity = getRoleEntityList(roles);
 		
-		Iterator<String> itr = userDto.getRoles().iterator();
+		userEntity.setRoles(lstRoleEntity);
+		UserEntity savedUserEntity = userRepository.save(userEntity);
+		returnValue = modelMapper.map(savedUserEntity, UserDto.class);
+		
+		return returnValue;
+	}
+	
+	@Override
+	public List<RoleEntity> getRoleEntityList(Iterator<String> itr){
 		String role;
 		RoleEntity roleEntity;
 		List<RoleEntity> lstRoleEntity = new ArrayList<RoleEntity>();
@@ -165,11 +178,7 @@ public class UserServiceImpl implements UserService {
 			lstRoleEntity.add(roleEntity);
 		}
 		
-		userEntity.setRoles(lstRoleEntity);
-		UserEntity savedUserEntity = userRepository.save(userEntity);
-		returnValue = modelMapper.map(savedUserEntity, UserDto.class);
-		
-		return returnValue;
+		return lstRoleEntity;
 	}
 
 	@Override
@@ -184,24 +193,16 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDto getAllLenderRoleUsers() {
-		ModelMapper modelMapper = new ModelMapper();
-		UserDto returnValue = new UserDto();
-		UserEntity userEntity = userRepository.findAllLenderRoleUsers();
-		returnValue = modelMapper.map(userEntity, UserDto.class);
+	public List<UserDto> findAllUsersById(long id) {
+		List<UserDto> returnValue = new ArrayList<UserDto>();
+		List<UserEntity> userEntity = userRepository.findAllUsersById(id);
+		
+		Type listType = new TypeToken<List<UserDto>>() {}.getType();
+		returnValue = new ModelMapper().map(userEntity, listType);
 		return returnValue;
 	}
 
-	@Override
-	public UserDto getAllBorrowerRoleUsers() {
-		ModelMapper modelMapper = new ModelMapper();
-		UserDto returnValue = new UserDto();
-		UserEntity userEntity = userRepository.findAllBorrowerRoleUsers();
-		returnValue = modelMapper.map(userEntity, UserDto.class);
-		return returnValue;
-	}
-
-	@Override
+		@Override
 	public List<UserDto> getAllUsers() {
 		Iterable<UserEntity> lstUsers= userRepository.findAll();
 		List<UserDto> returnValue = new ArrayList<UserDto>();
@@ -227,7 +228,18 @@ public class UserServiceImpl implements UserService {
 		return returnValue;
 	}
 
-	
+	@Override
+	public long getIdForRoleName(String roleName) {
+		RoleEntity entity = roleRepository.findByName(roleName);
+		return entity.getId();
+		
+	}
 
+	@Override
+	public String getUserIdForRoleId(String roleId) {
+		List<Object> returnVal = userRepository.getUserIdForRoleId(roleId);
+		String str = (String) returnVal.get(0);
+		return str;
+	}
 	
 }

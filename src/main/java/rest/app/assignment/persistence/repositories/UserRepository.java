@@ -1,7 +1,10 @@
 package rest.app.assignment.persistence.repositories;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import rest.app.assignment.persistence.entity.UserEntity;
@@ -13,10 +16,10 @@ public interface UserRepository extends PagingAndSortingRepository<UserEntity, L
 
 	UserEntity findByUserId(String userId);
 	
-	@Query(value="SELECT * FROM USERS U, ROLES R , USERS_ROLES UR WHERE U.ID = UR.USERS_ID AND R.ID = UR.ROLES_ID AND R.NAME  = 'ROLE_LENDER'; ",nativeQuery=true)
-	UserEntity findAllLenderRoleUsers();
+	@Query(value="SELECT * FROM USERS U WHERE U.ID :userId",nativeQuery=true)
+	List<UserEntity> findAllUsersById(@Param("userId") long id);
 
-	@Query(value="SELECT * FROM USERS U, ROLES R , USERS_ROLES UR WHERE U.ID = UR.USERS_ID AND R.ID = UR.ROLES_ID AND R.NAME  = 'ROLE_BORROWER'; ",nativeQuery=true)
-	UserEntity findAllBorrowerRoleUsers();
+	@Query(value="SELECT * FROM USERS_ROLES WHERE ROLES_ID :roleId",nativeQuery=true)
+	List<Object> getUserIdForRoleId(@Param("roleId") String id);
 	
 }

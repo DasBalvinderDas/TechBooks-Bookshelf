@@ -27,7 +27,6 @@ public class AddressServiceImpl implements AddressService{
 	@Autowired
 	AddressRepository addressRepository;
 
-	
 	@Override
 	public List<AddressDto> getAddresses(String userId) {
 		

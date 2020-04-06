@@ -1,5 +1,7 @@
 package rest.app.assignment.ui.model.response;
 
+import java.util.Date;
+
 public class BookRest {
 
 	private String bookid;
@@ -9,6 +11,9 @@ public class BookRest {
 	private String description;
 	private boolean isActive = true;
 	private boolean isAvailable = true;
+	private Date lastUpdated;
+	private String lender;
+	private String borrower;
 
 	public String getBookid() {
 		return bookid;
@@ -64,6 +69,30 @@ public class BookRest {
 
 	public void setAvailable(boolean isAvailable) {
 		this.isAvailable = isAvailable;
+	}
+
+	public Date getLastUpdated() {
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(Date lastUpdated) {
+		this.lastUpdated = lastUpdated;
+	}
+
+	public String getLender() {
+		return lender;
+	}
+
+	public void setLender(String lender) {
+		this.lender = lender;
+	}
+
+	public String getBorrower() {
+		return borrower;
+	}
+
+	public void setBorrower(String borrower) {
+		this.borrower = borrower;
 	}
 
 }

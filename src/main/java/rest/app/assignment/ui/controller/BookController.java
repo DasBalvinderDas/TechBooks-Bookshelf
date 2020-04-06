@@ -66,27 +66,24 @@ public class BookController {
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	@PostMapping(value="/multiple",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<List<BookRest>> addBooks(@RequestBody List<BookDetailsRequestModel> multipleBookDetails) {
+	public ResponseEntity<OperationStatusModel> addBooks(@RequestBody List<BookDetailsRequestModel> multipleBookDetails) {
 		
-		
-		List<BookDto> lstBookDto = new ArrayList<BookDto>();
-		List<BookRest> lstBookRest = new ArrayList<BookRest>();
-		
-		if(null!=multipleBookDetails && !multipleBookDetails.isEmpty()) {
-			Type listType = new TypeToken<List<BookDto>>() {}.getType();
-			lstBookDto = new ModelMapper().map(multipleBookDetails, listType);
+		for (BookDetailsRequestModel bookDetailsRequestModel : multipleBookDetails) {
+			addBook((BookDetailsRequestModel) bookDetailsRequestModel);
 		}
 		
-		lstBookDto = bookService.addBooks(lstBookDto);
+		OperationStatusModel operationStatusModel = new OperationStatusModel();
+		operationStatusModel.setOperationName("Bulk Book Load");
+		operationStatusModel.setOperationResult("SUCCESS");
 		
-		return new ResponseEntity<List<BookRest>>(lstBookRest,HttpStatus.OK);
+		return new ResponseEntity<OperationStatusModel>(operationStatusModel,HttpStatus.OK);
 	}
 
 
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="authorization", value="Book JWT Token",paramType = "header")
 	})
-	@PutMapping(path = "/{bookId}/{borrowerId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PutMapping(path = "/assign/{bookId}/{borrowerId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<OperationStatusModel> assignBook(@PathVariable String bookId,@PathVariable String borrowerId ) {
 		
@@ -159,7 +156,7 @@ public class BookController {
 	})
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping(path="/all",produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<List<BookRest>> getAllBooks(@PathVariable String id) {
+	public ResponseEntity<List<BookRest>> getAllBooks() {
 		
 		List<BookRest> returnvalue = new ArrayList<BookRest>();
 		List<BookDto> lstBookDto = bookService.getAllBooks();
