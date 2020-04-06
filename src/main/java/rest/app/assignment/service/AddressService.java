@@ -10,4 +10,6 @@ public interface AddressService {
 
 	AddressDto getAddress(String addressId);
 
+	AddressDto updateAddress(AddressDto addressDto,String addressId);
+
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import rest.app.assignment.exceptions.BookServiceException;
@@ -30,6 +31,7 @@ import rest.app.assignment.ui.model.response.BookRest;
 import rest.app.assignment.ui.model.response.OperationStatusModel;
 
 @RestController
+@RequestMapping("book")
 public class BookController {
 
 	@Autowired
@@ -39,7 +41,7 @@ public class BookController {
 	UserService userService;
 	
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
-	@PostMapping(value = "/book" , consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<BookRest> addBook(@RequestBody BookDetailsRequestModel bookDetails) {
 		BookRest returnvalue = new BookRest();
@@ -54,7 +56,7 @@ public class BookController {
 	}
 	
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
-	@PostMapping(value="/books",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+	@PostMapping(value="/multiple",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<List<BookRest>> addBooks(@RequestBody List<BookDetailsRequestModel> multipleBookDetails) {
 		
@@ -73,7 +75,7 @@ public class BookController {
 	}
 
 
-	@PutMapping(path = "/book/{bookId}/{borrowerId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PutMapping(path = "/{bookId}/{borrowerId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<OperationStatusModel> assignBook(@PathVariable String bookId,@PathVariable String borrowerId ) {
 		
@@ -92,7 +94,7 @@ public class BookController {
 	}
 	
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
-	@GetMapping(path = "/book/status/{bookId}" ,produces = { MediaType.APPLICATION_XML_VALUE,
+	@GetMapping(path = "/status/{bookId}" ,produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<BookRest> getStatusOfBook(@PathVariable String bookId) {
 		BookDto bookDto = bookService.getBookById(bookId); 
@@ -116,9 +118,9 @@ public class BookController {
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")
-	@PutMapping(path = "/book/shelf/{bookId}/{isAvailable}", produces = { MediaType.APPLICATION_XML_VALUE,
+	@PutMapping(path = "/{bookId}/{isAvailable}", produces = { MediaType.APPLICATION_XML_VALUE,
 					MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<BookRest> setBookActive(@PathVariable String bookId,@PathVariable boolean isActive) {
+	public ResponseEntity<BookRest> makeBookActive(@PathVariable String bookId,@PathVariable boolean isActive) {
 		
 		BookDto bookDto = bookService.getBookById(bookId); 
 		
@@ -133,7 +135,7 @@ public class BookController {
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")
-	@GetMapping(path="/books",produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(path="/all",produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<List<BookRest>> getAllBooks(@PathVariable String id) {
 		
 		List<BookRest> returnvalue = new ArrayList<BookRest>();
@@ -148,7 +150,7 @@ public class BookController {
 	}
 	
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
-	@GetMapping(path = "/book/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<BookRest> getBookById(@PathVariable String id) {
 		BookRest bookRest = new BookRest();
 		BookDto bookDto = bookService.getBookById(id);
