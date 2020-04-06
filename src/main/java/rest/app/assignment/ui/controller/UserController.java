@@ -1,12 +1,16 @@
 package rest.app.assignment.ui.controller;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import rest.app.assignment.service.AddressService;
@@ -141,6 +145,34 @@ public class UserController {
 		ModelMapper modelMapper = new ModelMapper();
 		userRest = modelMapper.map(userDto, UserRest.class);
 		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
+	}
+	
+	@GetMapping(produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "limit", defaultValue = "2") int limit) {
+		List<UserRest> returnValue = new ArrayList<>();
+
+		List<UserDto> users = userService.getUsers(page, limit);
+		
+		Type listType = new TypeToken<List<UserRest>>() {}.getType();
+		returnValue = new ModelMapper().map(users, listType);
+
+		return returnValue;
+	}
+	
+	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
+	@GetMapping(path = "/users", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<List<UserRest>> getAllUser() {
+		List<UserRest> returnvalue = new ArrayList<UserRest>();
+		List<UserDto> lstUserDto = userService.getAllUsers();
+		
+		if(null!=lstUserDto && !lstUserDto.isEmpty()) {
+			Type listType = new TypeToken<List<UserRest>>() {}.getType();
+			returnvalue = new ModelMapper().map(lstUserDto, listType);
+		}
+		return new ResponseEntity<List<UserRest>>(returnvalue,HttpStatus.OK);
+
+		
 	}
 	
 	@PreAuthorize("hasRole('ADMIN') or #id == principal.userId")

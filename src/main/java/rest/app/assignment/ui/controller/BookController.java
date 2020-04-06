@@ -134,7 +134,7 @@ public class BookController {
 	
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping(path="/books",produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public List<BookRest> getAllBooks(@PathVariable String id) {
+	public ResponseEntity<List<BookRest>> getAllBooks(@PathVariable String id) {
 		
 		List<BookRest> returnvalue = new ArrayList<BookRest>();
 		List<BookDto> lstBookDto = bookService.getAllBooks();
@@ -143,19 +143,18 @@ public class BookController {
 			Type listType = new TypeToken<List<BookRest>>() {}.getType();
 			returnvalue = new ModelMapper().map(lstBookDto, listType);
 		}
-		
-		return returnvalue;
+		return new ResponseEntity<List<BookRest>>(returnvalue,HttpStatus.OK);
 		
 	}
 	
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	@GetMapping(path = "/book/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public BookRest getBookById(@PathVariable String id) {
+	public ResponseEntity<BookRest> getBookById(@PathVariable String id) {
 		BookRest bookRest = new BookRest();
 		BookDto bookDto = bookService.getBookById(id);
 		ModelMapper modelMapper = new ModelMapper();
 		bookRest = modelMapper.map(bookDto, BookRest.class);
-		return bookRest;
+		return new ResponseEntity<BookRest>(bookRest,HttpStatus.OK);
 	}
 	
 	

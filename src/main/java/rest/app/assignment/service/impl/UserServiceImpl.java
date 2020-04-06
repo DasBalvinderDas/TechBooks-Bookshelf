@@ -1,17 +1,24 @@
 package rest.app.assignment.service.impl;
 
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import rest.app.assignment.exceptions.UserServiceException;
+import rest.app.assignment.persistence.entity.AddressEntity;
 import rest.app.assignment.persistence.entity.RoleEntity;
 import rest.app.assignment.persistence.entity.UserEntity;
 import rest.app.assignment.persistence.repositories.RoleRepository;
@@ -165,6 +172,32 @@ public class UserServiceImpl implements UserService {
 		UserDto returnValue = new UserDto();
 		UserEntity userEntity = userRepository.findAllBorrowerRoleUsers();
 		returnValue = modelMapper.map(userEntity, UserDto.class);
+		return returnValue;
+	}
+
+	@Override
+	public List<UserDto> getAllUsers() {
+		Iterable<UserEntity> lstUsers= userRepository.findAll();
+		List<UserDto> returnValue = new ArrayList<UserDto>();
+		
+		for (UserEntity userEntity : lstUsers) {
+			returnValue.add(new ModelMapper().map(userEntity, UserDto.class));
+		}
+		return returnValue;
+		
+	}
+
+	@Override
+	public List<UserDto> getUsers(int page, int limit) {
+		List<UserDto> returnValue = new ArrayList<UserDto>();
+		Pageable pageableRequest = PageRequest.of(page, limit);
+		
+		Page<UserEntity> userPage =  userRepository.findAll(pageableRequest);
+		List<UserEntity> lstUsers = userPage.getContent();
+		
+		for (UserEntity userEntity : lstUsers) {
+			returnValue.add(new ModelMapper().map(userEntity, UserDto.class));
+		}
 		return returnValue;
 	}
 

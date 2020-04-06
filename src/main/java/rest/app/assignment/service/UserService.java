@@ -1,5 +1,7 @@
 package rest.app.assignment.service;
 
+import java.util.List;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import rest.app.assignment.shared.dto.UserDto;
@@ -13,5 +15,7 @@ public interface UserService extends UserDetailsService{
 	public void deleteUser(String id) ;
 	public UserDto getAllLenderRoleUsers();
 	public UserDto getAllBorrowerRoleUsers();
+	public List<UserDto> getAllUsers();
+	public List<UserDto> getUsers(int page, int limit);
 	
 }
