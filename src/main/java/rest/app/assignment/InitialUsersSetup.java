@@ -50,7 +50,7 @@ public class InitialUsersSetup {
 			createRole(Roles.ROLE_BORROWER.name(), Arrays.asList(viewAuthority,updateAuthority));
 			createRole(Roles.ROLE_LENDER.name(), Arrays.asList(viewAuthority,updateAuthority));
 			
-			RoleEntity addmin = createRole(Roles.ROLE_ADMIN.name(), Arrays.asList(viewAuthority,updateAuthority,createAuthority,deleteAuthority));
+			RoleEntity admin = createRole(Roles.ROLE_ADMIN.name(), Arrays.asList(viewAuthority,updateAuthority,createAuthority,deleteAuthority));
 			
 			RoleEntity superAdmin = createRole(Roles.ROLE_SUPER.name(), Arrays.asList(viewAuthority,updateAuthority,createAuthority,deleteAuthority));
 			
@@ -59,15 +59,24 @@ public class InitialUsersSetup {
 			UserEntity superAdminUser;
 			superAdminUser = userRepository.findByEmail("super@admin.com");
 			
-			if(null!=superAdminUser) return;
-			
-			createSuperAdminUser(superAdmin);
-			
 			UserEntity adminUser = new UserEntity();
 			adminUser = userRepository.findByEmail("admin@test.com");
-			if(null!=adminUser) return;
 			
-			createAdminUser(addmin);
+			boolean createSuperAdmin = true;
+			boolean createAdmin = true;
+			if(null!=superAdminUser) {
+				createSuperAdmin = false;
+				
+				if(null!=adminUser) {
+					createAdmin = false;
+				}
+			}
+			
+			if(createSuperAdmin)
+			createSuperAdminUser(superAdmin);
+			
+			if(createAdmin)
+			createAdminUser(admin);
 			
 		}
 

@@ -35,7 +35,7 @@ public class SwaggerConfig {
 	public Docket apiDocket() {
 
 		Docket docket = new Docket(DocumentationType.SWAGGER_2)
-				.protocols(new HashSet<>(Arrays.asList("HTTP","HTTPS")))
+				.protocols(new HashSet<>(Arrays.asList("HTTP")))
 				.apiInfo(apiInfo)
 				.select()
 				.apis(RequestHandlerSelectors.basePackage("rest.app.assignment")).paths(PathSelectors.any())

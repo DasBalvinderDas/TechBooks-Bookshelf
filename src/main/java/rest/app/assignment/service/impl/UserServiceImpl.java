@@ -4,6 +4,7 @@ package rest.app.assignment.service.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -139,9 +140,34 @@ public class UserServiceImpl implements UserService {
 		userEntity.setFirstName(userDto.getFirstName());
 		userEntity.setLastName(userDto.getLastName());
 		
-		userEntity = userRepository.save(userEntity);
+		UserEntity savedUserEntity = userRepository.save(userEntity);
+		returnValue = modelMapper.map(savedUserEntity, UserDto.class);
+		return returnValue;
+	}
+	
+	@Override
+	public UserDto updateUserRole(String userId, UserDto userDto) {
 		
-		returnValue = modelMapper.map(userEntity, UserDto.class);
+		UserDto returnValue = new UserDto();
+		ModelMapper modelMapper = new ModelMapper();
+		UserEntity userEntity = userRepository.findByUserId(userId);
+		if (null == userEntity)
+			throw new UsernameNotFoundException(String.valueOf(userId));
+		
+		
+		Iterator<String> itr = userDto.getRoles().iterator();
+		String role;
+		RoleEntity roleEntity;
+		List<RoleEntity> lstRoleEntity = new ArrayList<RoleEntity>();
+		while(itr.hasNext()) {
+			role = (String) itr.next();
+			roleEntity = roleRepository.findByName(role);
+			lstRoleEntity.add(roleEntity);
+		}
+		
+		userEntity.setRoles(lstRoleEntity);
+		UserEntity savedUserEntity = userRepository.save(userEntity);
+		returnValue = modelMapper.map(savedUserEntity, UserDto.class);
 		
 		return returnValue;
 	}

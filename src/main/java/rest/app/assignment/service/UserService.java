@@ -17,5 +17,6 @@ public interface UserService extends UserDetailsService{
 	public UserDto getAllBorrowerRoleUsers();
 	public List<UserDto> getAllUsers();
 	public List<UserDto> getUsers(int page, int limit);
+	UserDto updateUserRole(String userId, UserDto userDto);
 	
 }

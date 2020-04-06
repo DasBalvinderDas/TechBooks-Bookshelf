@@ -74,8 +74,7 @@ public class UserController {
 
 	@ApiImplicitParams({ @ApiImplicitParam(name = "authorization", value = "Book JWT Token", paramType = "header") })
 	@PreAuthorize("hasRole('SUPER')")
-	@PutMapping(path = "/users/admin/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
+	@PutMapping(path = "/users/admin/{id}",  produces = { MediaType.APPLICATION_XML_VALUE,
 					MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserRest> makeAdmin(@PathVariable String id) {
 
@@ -86,7 +85,7 @@ public class UserController {
 		// setting role in the user
 		userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_ADMIN.name())));
 
-		UserDto updatedUser = userService.updateUser(id, userDto);
+		UserDto updatedUser = userService.updateUserRole(id, userDto);
 
 		UserRest userRest = new UserRest();
 		userRest = modelMapper.map(updatedUser, UserRest.class);
@@ -142,7 +141,7 @@ public class UserController {
 		// setting role in the user
 		userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_LENDER.name())));
 
-		UserDto createdUser = userService.updateUser(id, userDto);
+		UserDto createdUser = userService.updateUserRole(id, userDto);
 
 		UserRest userRest = new UserRest();
 		userRest = modelMapper.map(createdUser, UserRest.class);
