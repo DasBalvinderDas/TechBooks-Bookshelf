@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,6 +22,7 @@ public class AddressController {
 	@Autowired
 	AddressService addressService;
 
+	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	@GetMapping(path = "/{id}/addresses", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
 	public List<AddressRest> getAdddresses(@PathVariable String id) {
@@ -35,9 +37,10 @@ public class AddressController {
 		return returnvalue;
 	}
 	
+	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	@GetMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
-	public AddressRest getAdddresses(@PathVariable String userId,@PathVariable String addressId) {
+	public AddressRest getAdddress(@PathVariable String userId,@PathVariable String addressId) {
 		AddressRest returnvalue = new AddressRest();
 		AddressDto addressDto = addressService.getAddress(addressId);
 
@@ -47,6 +50,7 @@ public class AddressController {
 		return returnvalue;
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
 	public AddressRest updateAdddress(@PathVariable String userId,@PathVariable String addressId) {

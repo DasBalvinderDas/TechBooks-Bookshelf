@@ -32,7 +32,7 @@ import rest.app.assignment.ui.model.response.OperationStatusModel;
 import rest.app.assignment.ui.model.response.UserRest;
 
 @RestController
-@RequestMapping("users")
+
 public class UserController {
 
 	@Autowired
@@ -41,9 +41,9 @@ public class UserController {
 	@Autowired
 	AddressService addressService;
 	
-	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
-			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN') or hasRole('SUPER')")
+	@PostMapping(value="/users",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserRest> createUser(@Valid @RequestBody UserDetailsRequestModel userDetails) {
 
 		UserDto userDto = new UserDto();
@@ -61,9 +61,9 @@ public class UserController {
 		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
 	}
 	
-	@PutMapping(path = "/{id}",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
-			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('SUPER')")
+	@PutMapping(path = "/users/admin/{id}",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserRest> makeAdmin(@PathVariable String id) {
 
 		UserDto userDto = new UserDto();
@@ -81,9 +81,9 @@ public class UserController {
 		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
 	}
 	
-	@DeleteMapping(path = "/delete/admin/{id}", consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
-			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('SUPER')")
+	@DeleteMapping(path = "/users/admin/{id}", consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<OperationStatusModel> deleteAdmin(@PathVariable String id) {
 
 		OperationStatusModel operationStatusModel = new OperationStatusModel();
@@ -113,9 +113,9 @@ public class UserController {
 		
 	}
 	
-	@PutMapping(path = "/lender/{id}",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
-			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN')")
+	@PutMapping(path = "/users/lender/{id}",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserRest> makeLender(@PathVariable String id) {
 
 		UserDto userDto = new UserDto();
@@ -133,8 +133,8 @@ public class UserController {
 		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
 	}
 	
-	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
+	@GetMapping(path = "/users/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserRest> getUser(@PathVariable String id) {
 		UserRest userRest = new UserRest();
 		UserDto userDto = userService.getUserByUserId(id);
@@ -143,10 +143,10 @@ public class UserController {
 		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
 	}
 	
-	@PutMapping(path = "/update/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
+	@PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
+	@PutMapping(path = "/users/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
 					MediaType.APPLICATION_JSON_VALUE })
-	@PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
 	public ResponseEntity<UserRest> updateUser(@Valid @RequestBody UserDetailsUpdateModel userDetails , @PathVariable String id) {
 		UserDto userDto = new UserDto();
 		ModelMapper modelMapper = new ModelMapper();
@@ -162,11 +162,10 @@ public class UserController {
 		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
 	}
 	
-	@DeleteMapping(path = "/delete/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN')")
+	@DeleteMapping(path = "/users/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<OperationStatusModel> deleteUser(@PathVariable String id) {
 
-		//we cant delete a llendder as long as all books providded by him are not submittedd back to the libarary
 		userService.deleteUser(id);
 		OperationStatusModel operationStatusModel = new OperationStatusModel();
 		operationStatusModel.setOperationName("DELETE User Record");
@@ -174,8 +173,8 @@ public class UserController {
 		return new ResponseEntity<OperationStatusModel>(operationStatusModel,HttpStatus.OK);
 	}
 	
-	@GetMapping(path = "/lenders", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
+	@GetMapping(path = "/users/lenders", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserRest> showAllLenders() {
 		UserRest userRest = new UserRest();
 		UserDto userDto = userService.getAllLenderRoleUsers();
@@ -184,8 +183,8 @@ public class UserController {
 		return new ResponseEntity<UserRest>(userRest,HttpStatus.OK);
 	}
 	
-	@GetMapping(path = "/borrowers", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN') or hasRole('BORROWER')")
+	@GetMapping(path = "/users/borrowers", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<UserRest> showAllBorrowers() {
 		UserRest userRest = new UserRest();
 		UserDto userDto = userService.getAllBorrowerRoleUsers();

@@ -10,15 +10,17 @@ import rest.app.assignment.ui.model.response.OperationStatusModel;
 public interface BookService {
 
 	public BookDto addBook(BookDto bookDto);
+	
+	public List<BookDto> addBooks(List<BookDto> lstBookDto);
 
 	public BookDto getBookById(String bookId);
+	
+	public List<BookDto> getAllBooks();
 
 	public OperationStatusModel assignBook(BookDto bookDto);
 
 	public void deleteBook(String bookId);
 
 	public BookRest update(BookDto bookDto);
-
-	public List<UserDto> getAllBooks();
 
 }

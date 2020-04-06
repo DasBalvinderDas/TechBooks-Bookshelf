@@ -3,7 +3,10 @@ package rest.app.assignment.shared;
 import java.security.SecureRandom;
 import java.util.Random;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import rest.app.assignment.security.UserPrincipal;
 
 @Component
 public class Utils {
@@ -33,6 +36,15 @@ public class Utils {
         return new String(returnValue);
     }
 
+	
+	public String getLoginUserEmail() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String email = "";
+		if (principal instanceof UserPrincipal) {
+		   email = ((UserPrincipal) principal).getEmail();
+		}
+		return email;
+	}
 	
 	
 }

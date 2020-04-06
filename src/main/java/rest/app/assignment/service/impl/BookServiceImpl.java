@@ -1,22 +1,21 @@
 package rest.app.assignment.service.impl;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import rest.app.assignment.exceptions.BookServiceException;
 import rest.app.assignment.persistence.entity.BookEntity;
-import rest.app.assignment.persistence.entity.UserEntity;
 import rest.app.assignment.persistence.repositories.BookRepository;
 import rest.app.assignment.service.BookService;
 import rest.app.assignment.shared.Utils;
 import rest.app.assignment.shared.dto.BookDto;
-import rest.app.assignment.shared.dto.UserDto;
 import rest.app.assignment.ui.model.response.BookRest;
 import rest.app.assignment.ui.model.response.OperationStatusModel;
 
@@ -25,8 +24,6 @@ public class BookServiceImpl implements BookService{
 
 	@Autowired
 	BookRepository bookRepository;
-	
-
 	
 	@Autowired
 	Utils utils;
@@ -45,12 +42,55 @@ public class BookServiceImpl implements BookService{
 		String publicBookId = utils.generateBookId(5);
 		bookEntity.setBookId(publicBookId);
 		
+		bookDto.setLastUpdated(new Date());
+		
+		String email = utils.getLoginUserEmail();
+		bookDto.setLender(email);
+		
 		bookRepository.save(bookEntity);
 		
 		BookDto returnValue = modelMapper.map(bookEntity, BookDto.class);
 
 		return returnValue;
 		
+	}
+	
+	@Override
+	public List<BookDto> addBooks(List<BookDto> lstBookDto) {
+		
+		BookEntity storedBookDetails;
+		String publicBookId;
+		String email = utils.getLoginUserEmail();
+		List<BookEntity> lstBookEntity = new ArrayList<BookEntity>();
+		List<BookDto> returnValue = new ArrayList<BookDto>();
+		
+		for (BookDto bookDto : lstBookDto) {
+			storedBookDetails = bookRepository.findBybookName(bookDto.getBookName());
+
+			if (storedBookDetails != null)
+				throw new RuntimeException("In bulk upload no book can pre exist in the system");
+			
+			publicBookId = utils.generateBookId(5);
+			bookDto.setBookId(publicBookId);
+			bookDto.setLastUpdated(new Date());
+			bookDto.setLender(email);
+			
+		}
+		
+		if(null!=lstBookDto && !lstBookDto.isEmpty()) {
+			Type listType = new TypeToken<List<BookEntity>>() {}.getType();
+			lstBookEntity = new ModelMapper().map(lstBookDto, listType);
+		}
+		
+		if(null==lstBookEntity) return returnValue;
+		
+		Iterable<BookEntity> savedBooks = bookRepository.saveAll(lstBookEntity);
+		
+		for (BookEntity bookEntity : savedBooks) {
+			returnValue.add(new ModelMapper().map(bookEntity, BookDto.class));
+		}
+		
+		return returnValue;
 	}
 
 	@Override
@@ -104,9 +144,15 @@ public class BookServiceImpl implements BookService{
 	}
 
 	@Override
-	public List<UserDto> getAllBooks() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<BookDto> getAllBooks() {
+		List<BookDto> returnValue = new ArrayList<BookDto>();
+		
+		Iterable<BookEntity> books = bookRepository.findAll();
+		for (BookEntity bookEntity : books) {
+			returnValue.add(new ModelMapper().map(bookEntity, BookDto.class));
+		}
+		return returnValue;
 	}
 
+	
 }

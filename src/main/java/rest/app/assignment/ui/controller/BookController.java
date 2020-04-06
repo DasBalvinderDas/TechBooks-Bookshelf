@@ -1,27 +1,26 @@
 package rest.app.assignment.ui.controller;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import rest.app.assignment.exceptions.BookServiceException;
-import rest.app.assignment.security.UserPrincipal;
 import rest.app.assignment.service.BookService;
 import rest.app.assignment.service.UserService;
 import rest.app.assignment.shared.dto.BookDto;
@@ -29,10 +28,8 @@ import rest.app.assignment.shared.dto.UserDto;
 import rest.app.assignment.ui.model.request.BookDetailsRequestModel;
 import rest.app.assignment.ui.model.response.BookRest;
 import rest.app.assignment.ui.model.response.OperationStatusModel;
-import rest.app.assignment.ui.model.response.UserRest;
 
 @RestController
-@RequestMapping("book")
 public class BookController {
 
 	@Autowired
@@ -41,9 +38,9 @@ public class BookController {
 	@Autowired
 	UserService userService;
 	
-	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
-			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
+	@PostMapping(value = "/book" , consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<BookRest> addBook(@RequestBody BookDetailsRequestModel bookDetails) {
 		BookRest returnvalue = new BookRest();
 		BookDto bookDto = new BookDto();
@@ -51,21 +48,32 @@ public class BookController {
 		ModelMapper modelMapper = new ModelMapper();
 		bookDto = modelMapper.map(bookDetails, BookDto.class);
 		
-		bookDto.setLastUpdated(new Date());
-		
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String email = "";
-		if (principal instanceof UserPrincipal) {
-		   email = ((UserPrincipal) principal).getEmail();
-		}
-		bookDto.setLender(email);
-		
 		bookDto = bookService.addBook(bookDto);
 		returnvalue = modelMapper.map(bookDto, BookRest.class);
 		return new ResponseEntity<BookRest>(returnvalue,HttpStatus.OK);
 	}
+	
+	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
+	@PostMapping(value="/books",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<List<BookRest>> addBooks(@RequestBody List<BookDetailsRequestModel> multipleBookDetails) {
+		
+		
+		List<BookDto> lstBookDto = new ArrayList<BookDto>();
+		List<BookRest> lstBookRest = new ArrayList<BookRest>();
+		
+		if(null!=multipleBookDetails && !multipleBookDetails.isEmpty()) {
+			Type listType = new TypeToken<List<BookDto>>() {}.getType();
+			lstBookDto = new ModelMapper().map(multipleBookDetails, listType);
+		}
+		
+		lstBookDto = bookService.addBooks(lstBookDto);
+		
+		return new ResponseEntity<List<BookRest>>(lstBookRest,HttpStatus.OK);
+	}
 
-	@PutMapping(path = "/assign/{bookId}/{borrowerId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+
+	@PutMapping(path = "/book/{bookId}/{borrowerId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<OperationStatusModel> assignBook(@PathVariable String bookId,@PathVariable String borrowerId ) {
 		
@@ -83,9 +91,9 @@ public class BookController {
 		
 	}
 	
-	@GetMapping(path = "/status/{bookId}" ,produces = { MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
+	@GetMapping(path = "/book/status/{bookId}" ,produces = { MediaType.APPLICATION_XML_VALUE,
+			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<BookRest> getStatusOfBook(@PathVariable String bookId) {
 		BookDto bookDto = bookService.getBookById(bookId); 
 		ModelMapper modelMapper = new ModelMapper();
@@ -95,9 +103,9 @@ public class BookController {
 
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping(path = "/{bookId}",produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	@PreAuthorize("hasRole('ADMIN')")
 	public OperationStatusModel removeBook(@PathVariable String bookId) {
 		
 		bookService.deleteBook(bookId);
@@ -107,9 +115,9 @@ public class BookController {
 		return operationStatusModel;
 	}
 	
-	@PutMapping(path = "/{bookId}/{isAvailable}", produces = { MediaType.APPLICATION_XML_VALUE,
-					MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN')")
+	@PutMapping(path = "/book/shelf/{bookId}/{isAvailable}", produces = { MediaType.APPLICATION_XML_VALUE,
+					MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<BookRest> setBookActive(@PathVariable String bookId,@PathVariable boolean isActive) {
 		
 		BookDto bookDto = bookService.getBookById(bookId); 
@@ -124,33 +132,31 @@ public class BookController {
 		return new ResponseEntity<BookRest>(returnValue,HttpStatus.OK);
 	}
 	
-	@GetMapping(path="/all",produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN')")
+	@GetMapping(path="/books",produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public List<BookRest> getAllBooks(@PathVariable String id) {
-		List<UserRest> lstUserRest = new ArrayList<UserRest>();
-		List<UserDto> lstUserDto = bookService.getAllBooks();
 		
-		return null;
+		List<BookRest> returnvalue = new ArrayList<BookRest>();
+		List<BookDto> lstBookDto = bookService.getAllBooks();
+
+		if(null!=lstBookDto && !lstBookDto.isEmpty()) {
+			Type listType = new TypeToken<List<BookRest>>() {}.getType();
+			returnvalue = new ModelMapper().map(lstBookDto, listType);
+		}
+		
+		return returnvalue;
+		
 	}
 	
-	@GetMapping(path = "/{id}/", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
-	public UserRest getBookById(@PathVariable String id) {
-		UserRest userRest = new UserRest();
-		UserDto userDto = userService.getUserByUserId(id);
+	@GetMapping(path = "/book/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public BookRest getBookById(@PathVariable String id) {
+		BookRest bookRest = new BookRest();
+		BookDto bookDto = bookService.getBookById(id);
 		ModelMapper modelMapper = new ModelMapper();
-		userRest = modelMapper.map(userDto, UserRest.class);
-		return userRest;
+		bookRest = modelMapper.map(bookDto, BookRest.class);
+		return bookRest;
 	}
 	
-	@GetMapping(path = "/lender/{userId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
-	public UserRest getAllBooksProvidedByLender(@PathVariable String id) {
-		UserRest userRest = new UserRest();
-		UserDto userDto = userService.getUserByUserId(id);
-		ModelMapper modelMapper = new ModelMapper();
-		userRest = modelMapper.map(userDto, UserRest.class);
-		return userRest;
-	}
 	
 }
