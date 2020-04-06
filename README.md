@@ -10,7 +10,9 @@
     
     4.Uses in memory database as well as my sql which can be changed based upon property change ddefault is in memory      database.
     
-    5.Swagger Documented
+    5.Password encryption.
+    
+    6.Swagger Documented
 
 
 ### How to run application
@@ -34,6 +36,12 @@
 
      User can login via swagger UI and can use the token generated authorization header of the response which also has userid that identifies that login user
    
+   I have also committed the screenshot for login for reference.
      
  ### Swagger Link
 http://localhost:8080/bookstore/swagger-ui.html
+
+### H2 Console 
+http://localhost:8080/bookstore/h2-console
+
+
