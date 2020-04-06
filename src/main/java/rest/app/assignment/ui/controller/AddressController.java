@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import rest.app.assignment.service.AddressService;
 import rest.app.assignment.shared.dto.AddressDto;
 import rest.app.assignment.ui.model.request.AddressRequestModel;
@@ -32,6 +34,9 @@ public class AddressController {
 	@Autowired
 	AddressService addressService;
 
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="authorization", value="Book JWT Token",paramType = "header")
+	})
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	@GetMapping(path = "/{userId}/addresses", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
@@ -48,6 +53,9 @@ public class AddressController {
 		return new ResponseEntity<List<AddressRest>>(returnvalue, HttpStatus.OK);
 	}
 
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="authorization", value="Book JWT Token",paramType = "header")
+	})
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	@GetMapping(path = "/{userId}/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
@@ -61,6 +69,9 @@ public class AddressController {
 		return new ResponseEntity<AddressRest>(returnvalue, HttpStatus.OK);
 	}
 
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="authorization", value="Book JWT Token",paramType = "header")
+	})
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping(path = "/addresses/{addressId}", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })

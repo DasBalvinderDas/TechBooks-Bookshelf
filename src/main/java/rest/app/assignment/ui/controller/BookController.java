@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import rest.app.assignment.exceptions.BookServiceException;
 import rest.app.assignment.service.BookService;
 import rest.app.assignment.service.UserService;
@@ -40,6 +42,9 @@ public class BookController {
 	@Autowired
 	UserService userService;
 	
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="authorization", value="Book JWT Token",paramType = "header")
+	})
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
@@ -55,6 +60,9 @@ public class BookController {
 		return new ResponseEntity<BookRest>(returnvalue,HttpStatus.OK);
 	}
 	
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="authorization", value="Book JWT Token",paramType = "header")
+	})
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	@PostMapping(value="/multiple",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
@@ -75,6 +83,9 @@ public class BookController {
 	}
 
 
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="authorization", value="Book JWT Token",paramType = "header")
+	})
 	@PutMapping(path = "/{bookId}/{borrowerId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<OperationStatusModel> assignBook(@PathVariable String bookId,@PathVariable String borrowerId ) {
@@ -93,6 +104,9 @@ public class BookController {
 		
 	}
 	
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="authorization", value="Book JWT Token",paramType = "header")
+	})
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	@GetMapping(path = "/status/{bookId}" ,produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
@@ -105,6 +119,9 @@ public class BookController {
 
 	}
 	
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="authorization", value="Book JWT Token",paramType = "header")
+	})
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping(path = "/{bookId}",produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
@@ -117,6 +134,9 @@ public class BookController {
 		return operationStatusModel;
 	}
 	
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="authorization", value="Book JWT Token",paramType = "header")
+	})
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping(path = "/{bookId}/{isAvailable}", produces = { MediaType.APPLICATION_XML_VALUE,
 					MediaType.APPLICATION_JSON_VALUE })
@@ -134,6 +154,9 @@ public class BookController {
 		return new ResponseEntity<BookRest>(returnValue,HttpStatus.OK);
 	}
 	
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="authorization", value="Book JWT Token",paramType = "header")
+	})
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping(path="/all",produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<List<BookRest>> getAllBooks(@PathVariable String id) {
@@ -149,6 +172,9 @@ public class BookController {
 		
 	}
 	
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="authorization", value="Book JWT Token",paramType = "header")
+	})
 	@PreAuthorize("hasRole('ADMIN') or hasRole('LENDER')")
 	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<BookRest> getBookById(@PathVariable String id) {
